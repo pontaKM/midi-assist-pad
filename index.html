@@ -27,6 +27,8 @@ header .grp label{margin-right:4px;}
 #clockStat .dot.on{background:var(--accent2);}
 #rate{color:var(--dim);font-variant-numeric:tabular-nums;min-width:70px;}
 #resetBtn{background:#3a2a2a;border-color:#6a3a3a;}
+#testBtn{background:#24343a;border-color:var(--accent2);}
+#mon{color:var(--dim);font-family:Menlo,monospace;font-size:12px;}
 #banner{display:none;background:var(--warn);color:#fff;padding:6px 10px;font-size:13px;}
 
 main{display:flex;flex-wrap:wrap;padding:6px;}
@@ -92,7 +94,9 @@ summary{color:var(--dim);font-size:13px;padding:4px;cursor:pointer;}
   </div>
   <div class="grp" id="clockStat"><span class="dot" id="clkDot"></span><span id="clkText">--</span></div>
   <div class="grp" id="rate">0 msg/s</div>
+  <div class="grp"><button id="testBtn">テスト音</button></div>
   <div class="grp"><button id="resetBtn">リセット</button></div>
+  <div class="grp" id="mon">送信: -- ／ 受信: --</div>
 </header>
 
 <main>
@@ -267,8 +271,10 @@ function bindPorts(){
   inp = newIn;
   if (inp) inp.onmidimessage = onMidiIn;
 }
+var monOut = '--', monIn = '--';
+function hex(b){ var a=[]; for (var i=0;i<b.length;i++){ var h=b[i].toString(16).toUpperCase(); a.push(h.length<2?'0'+h:h); } return a.join(' '); }
 function sendRaw(bytes){
-  msgCount++;
+  msgCount++; monOut = hex(bytes);
   if (out) { try { out.send(bytes); } catch(e) {} }
 }
 
@@ -399,6 +405,7 @@ function bindDrag(el, onMove, onStart, onEnd){
 var clk = {running:false, tick:0, lastT:0, iv:[], bpm:0, lastSeen:0};
 function onMidiIn(e){
   var d = e.data, s = d[0], now = performance.now();
+  if (s < 0xF8 || s === 0xFA || s === 0xFB || s === 0xFC) monIn = hex(d);
   if (s === 0xF8){
     clk.lastSeen = now;
     if (clk.lastT){ var dt = now-clk.lastT; if (dt>2 && dt<200){ clk.iv.push(dt); if (clk.iv.length>48) clk.iv.shift(); } }
@@ -526,6 +533,7 @@ function render(){
   var bd = S.sync==='int' ? 'inline-block' : 'none';
   if (uiCache.bd!==bd){ uiCache.bd=bd; $('bpmIn').style.display = bd; }
   setText($('clkText'), txt, uiCache, 'clk');
+  setText($('mon'), '送信: '+monOut+' ／ 受信: '+monIn, uiCache, 'mon');
   var dot = (S.sync==='ext' && clk.running && alive) ? 'dot on' : 'dot';
   if (uiCache.dot!==dot){ uiCache.dot=dot; $('clkDot').className = dot; }
 
@@ -563,6 +571,11 @@ function initUI(){
   $('bpbIn').onchange  = function(){ S.bpb = clamp(Math.round(+this.value)||4,1,12); this.value=S.bpb; save(); };
   $('ccIn').onchange   = function(){ S.customCC = clamp(Math.round(+this.value)||0,0,119); this.value=S.customCC; sent.custom=-1; rebuild(); save(); };
 
+  $('testBtn').onclick = function(){
+    var ch = (S.ch-1) & 15;
+    sendRaw([0x90|ch, 60, 100]);
+    setTimeout(function(){ sendRaw([0x80|ch, 60, 0]); }, 400);
+  };
   $('resetBtn').onclick = function(){
     if (auto) stopAuto('リセットしました');
     prof().targets.forEach(function(t){
