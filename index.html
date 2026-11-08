@@ -11,132 +11,146 @@
   --text:#e8e6e1; --dim:#9a9890; --accent:#e8a33d; --accent2:#4fb3a9; --warn:#d9534f;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
-html,body{margin:0;background:var(--bg);color:var(--text);
-  font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;font-size:14px;}
-select,input,button{font-family:inherit;font-size:14px;color:var(--text);background:var(--panel2);
-  border:1px solid var(--line);border-radius:6px;padding:5px 6px;}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;font-size:16px;}
+body{display:flex;flex-direction:column;}
+select,input,button{font-family:inherit;font-size:16px;color:var(--text);background-color:var(--panel2);
+  border:1px solid var(--line);border-radius:8px;height:44px;padding:0 12px;touch-action:manipulation;}
+select{-webkit-appearance:none;appearance:none;padding-right:30px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%239a9890' stroke-width='2' fill='none'/></svg>");
+  background-repeat:no-repeat;background-position:right 10px center;}
 button{cursor:pointer;}
-input[type=number]{width:58px;-webkit-user-select:text;user-select:text;}
-label{color:var(--dim);font-size:12px;}
+input[type=number]{width:80px;text-align:center;-webkit-user-select:text;user-select:text;}
+input[type=range]{width:240px;padding:0;background:none;border:none;}
+label{color:var(--dim);font-size:13px;}
 
-header{display:flex;flex-wrap:wrap;align-items:center;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line);}
-header .grp{display:flex;align-items:center;margin:3px 10px 3px 0;}
-header .grp label{margin-right:4px;}
-#clockStat{font-variant-numeric:tabular-nums;min-width:170px;}
-#clockStat .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-right:5px;vertical-align:middle;}
+header{flex:none;display:flex;flex-wrap:wrap;align-items:center;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line);}
+#tabs{display:flex;margin:3px 12px 3px 0;}
+#tabs button{margin-right:4px;min-width:88px;font-weight:600;}
+#tabs button.on{background:var(--accent);color:#1a1a1a;border-color:var(--accent);}
+header .grp{display:flex;align-items:center;margin:3px 12px 3px 0;}
+header .grp label{margin-right:6px;}
+#bpmIn{margin-left:6px;}
+#clockStat{font-variant-numeric:tabular-nums;font-size:15px;}
+#clockStat .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#555;margin-right:6px;vertical-align:middle;}
 #clockStat .dot.on{background:var(--accent2);}
-#rate{color:var(--dim);font-variant-numeric:tabular-nums;min-width:70px;}
-#resetBtn{background:#3a2a2a;border-color:#6a3a3a;}
-#testBtn{background:#24343a;border-color:var(--accent2);}
-#mon{color:var(--dim);font-family:Menlo,monospace;font-size:12px;}
-#banner{display:none;background:var(--warn);color:#fff;padding:6px 10px;font-size:13px;}
+#resetBtn{background-color:#3a2a2a;border-color:#6a3a3a;}
+#banner{display:none;flex:none;background:var(--warn);color:#fff;padding:8px 12px;font-size:14px;}
 
-main{display:flex;flex-wrap:wrap;padding:6px;}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;margin:4px;}
-.panel h2{font-size:13px;font-weight:600;color:var(--dim);margin:0 0 6px 2px;letter-spacing:.05em;}
+.view{flex:1;min-height:0;display:none;padding:10px;}
+.view.on{display:flex;}
 
 /* faders */
-#faders{display:flex;}
-.fader{width:96px;margin:0 4px;display:flex;flex-direction:column;align-items:center;}
-.fader .val{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;height:26px;}
-.track{position:relative;width:76px;height:300px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+#v-fader{flex-direction:row;}
+.fader{flex:1 1 0;min-width:0;margin:0 6px;display:flex;flex-direction:column;}
+.fader .val{font-size:28px;font-weight:600;text-align:center;height:40px;line-height:40px;font-variant-numeric:tabular-nums;}
+.track{position:relative;flex:1;min-height:80px;background:var(--panel2);border:2px solid var(--line);border-radius:14px;overflow:hidden;}
 .track .fill{position:absolute;left:0;right:0;bottom:0;background:var(--accent);opacity:.85;}
-.track .center{position:absolute;left:0;right:0;top:50%;border-top:1px dashed #666;display:none;}
+.track .center{position:absolute;left:0;right:0;top:50%;border-top:2px dashed #777;display:none;}
 .track.touching{border-color:var(--accent);}
-.fader select{width:96px;margin-top:6px;font-size:12px;padding:4px 2px;}
-.rel{width:96px;margin-top:4px;font-size:12px;padding:4px 2px;}
-.rel.ret{background:#24343a;border-color:var(--accent2);}
+.fader select,.fader .rel{width:100%;margin-top:8px;}
+.rel.ret{background-color:#24343a;border-color:var(--accent2);}
 
 /* xy */
-#xyWrap{display:flex;flex-direction:column;}
-#xy{position:relative;width:330px;height:330px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+#v-xy{flex-direction:row;flex-wrap:wrap;align-items:flex-start;}
+#xy{position:relative;flex:none;width:300px;height:300px;background:var(--panel2);border:2px solid var(--line);border-radius:14px;overflow:hidden;}
 #xy.touching{border-color:var(--accent2);}
-#xy .h,#xy .v{position:absolute;background:rgba(79,179,169,.45);}
+#xy .h,#xy .v{position:absolute;background:rgba(79,179,169,.5);}
 #xy .h{left:0;right:0;height:1px;}
 #xy .v{top:0;bottom:0;width:1px;}
-#xy .dot{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:2px solid var(--accent2);background:rgba(79,179,169,.25);}
-.xyRow{display:flex;align-items:center;margin-top:6px;}
-.xyRow > *{margin-right:6px;}
-.xyRow select{font-size:12px;}
-#xyVals{font-variant-numeric:tabular-nums;color:var(--dim);font-size:12px;}
+#xy .dot{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:3px solid var(--accent2);background:rgba(79,179,169,.25);}
+#xyCtl{flex:1;min-width:220px;max-width:320px;margin:0 0 0 14px;display:flex;flex-direction:column;}
+#xyCtl select,#xyCtl button{width:100%;}
+#xyVals{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:8px;}
 
-/* auto */
-#auto{width:100%;max-width:1000px;}
-#auto .row{display:flex;flex-wrap:wrap;align-items:center;}
-#auto .f{display:flex;flex-direction:column;margin:0 10px 6px 0;}
-#auto .f label{margin-bottom:2px;}
-#goBtn,#stopBtn{font-size:18px;font-weight:600;padding:12px 22px;margin-right:8px;border-radius:8px;}
-#goBtn{background:var(--accent);color:#1a1a1a;border-color:var(--accent);}
-#goBtn.armed{background:#7a5a20;color:#fff;}
-#stopBtn{background:var(--panel2);}
-#preview{background:var(--panel2);border:1px solid var(--line);border-radius:6px;}
-#prog{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden;margin-top:6px;}
+/* forms */
+.scroll{flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.grid{display:flex;flex-wrap:wrap;align-items:flex-start;}
+.f{display:flex;flex-direction:column;margin:0 16px 16px 0;}
+.f label{margin-bottom:5px;}
+#aTarget,#aShape{min-width:210px;}
+#goBtn,#stopBtn{height:76px;min-width:170px;font-size:24px;font-weight:700;margin:0 12px 12px 0;border-radius:12px;}
+#goBtn{background-color:var(--accent);color:#1a1a1a;border-color:var(--accent);}
+#goBtn.armed{background-color:#7a5a20;color:#fff;}
+#preview{background:var(--panel2);border:1px solid var(--line);border-radius:8px;}
+#prog{height:12px;background:var(--panel2);border-radius:6px;overflow:hidden;max-width:700px;}
 #progFill{height:100%;width:0;background:var(--accent);}
-#autoMsg{color:var(--dim);font-size:12px;margin-top:4px;min-height:16px;}
-
-details{width:100%;}
-summary{color:var(--dim);font-size:13px;padding:4px;cursor:pointer;}
-.settings{display:flex;flex-wrap:wrap;align-items:center;padding:4px;}
-.settings .f{margin:0 14px 6px 0;display:flex;flex-direction:column;}
-.settings input[type=range]{width:150px;}
+#autoMsg{color:var(--dim);font-size:15px;margin-top:8px;min-height:20px;}
+#testBtn{background-color:#24343a;border-color:var(--accent2);}
+#rate,#mon{font-variant-numeric:tabular-nums;color:var(--dim);}
+#mon{font-family:Menlo,monospace;font-size:14px;margin-bottom:16px;}
+.note{color:var(--dim);font-size:13px;line-height:1.6;max-width:640px;margin:0 0 16px;}
+h3{font-size:14px;color:var(--dim);font-weight:600;margin:4px 0 10px;letter-spacing:.05em;}
 </style>
 </head>
 <body>
 <div id="banner"></div>
 <header>
-  <div class="grp"><label>MIDI OUT</label><select id="outSel"></select></div>
-  <div class="grp"><label>CLOCK IN</label><select id="inSel"></select></div>
+  <div id="tabs">
+    <button data-v="fader">フェーダー</button><button data-v="xy">XY</button><button data-v="auto">オート</button><button data-v="setup">設定</button>
+  </div>
   <div class="grp"><label>CH</label><select id="chSel"></select></div>
-  <div class="grp"><label>機材</label><select id="profSel"></select></div>
   <div class="grp"><label>同期</label>
     <select id="syncSel"><option value="ext">外部クロック</option><option value="int">内部BPM</option></select>
-    <input id="bpmIn" type="number" min="30" max="300" step="1" style="margin-left:4px;">
+    <input id="bpmIn" type="number" min="30" max="300" step="1">
   </div>
   <div class="grp" id="clockStat"><span class="dot" id="clkDot"></span><span id="clkText">--</span></div>
-  <div class="grp" id="rate">0 msg/s</div>
-  <div class="grp"><button id="testBtn">テスト音</button></div>
   <div class="grp"><button id="resetBtn">リセット</button></div>
-  <div class="grp" id="mon">送信: -- ／ 受信: --</div>
 </header>
 
-<main>
-  <div class="panel"><h2>FADERS</h2><div id="faders"></div></div>
+<section class="view" id="v-fader"></section>
 
-  <div class="panel" id="xyWrap"><h2>XY PAD</h2>
-    <div id="xy"><div class="h" id="xyH"></div><div class="v" id="xyV"></div><div class="dot" id="xyDot"></div></div>
-    <div class="xyRow"><label>X</label><select id="xyXSel"></select><label>Y</label><select id="xyYSel"></select></div>
-    <div class="xyRow"><button class="rel" id="xyRel"></button><span id="xyVals"></span></div>
+<section class="view" id="v-xy">
+  <div id="xy"><div class="h" id="xyH"></div><div class="v" id="xyV"></div><div class="dot" id="xyDot"></div></div>
+  <div id="xyCtl">
+    <div class="f"><label>横（X）の送り先</label><select id="xyXSel"></select></div>
+    <div class="f"><label>縦（Y）の送り先</label><select id="xyYSel"></select></div>
+    <div class="f"><label>指を離したとき</label><button class="rel" id="xyRel"></button></div>
+    <div id="xyVals"></div>
   </div>
+</section>
 
-  <div class="panel" id="auto"><h2>AUTO CURVE</h2>
-    <div class="row">
-      <div class="f"><label>送り先</label><select id="aTarget"></select></div>
-      <div class="f"><label>開始値</label><input id="aFrom" type="number" min="0" max="127"></div>
-      <div class="f"><label>終了値</label><input id="aTo" type="number" min="0" max="127"></div>
-      <div class="f"><label>長さ</label><div><input id="aLen" type="number" min="1" max="64">
-        <select id="aUnit"><option value="bar">小節</option><option value="beat">拍</option></select></div></div>
-      <div class="f"><label>カーブ</label><select id="aShape">
-        <option value="lin">直線</option><option value="slow">ゆっくり立ち上がる</option>
-        <option value="fast">すばやく立ち上がる</option><option value="s">S字</option></select></div>
-      <div class="f"><label>開始</label><select id="aStart"><option value="bar">次の小節頭</option><option value="now">すぐ</option></select></div>
-      <div class="f"><label>形</label><svg id="preview" width="120" height="56" viewBox="0 0 120 56"><polyline id="prevLine" fill="none" stroke="#e8a33d" stroke-width="2"/></svg></div>
-    </div>
-    <div class="row">
-      <button id="goBtn">GO</button><button id="stopBtn">STOP</button>
-      <div style="flex:1;min-width:200px;"><div id="prog"><div id="progFill"></div></div><div id="autoMsg"></div></div>
-    </div>
+<section class="view scroll" id="v-auto">
+  <div class="grid">
+    <div class="f"><label>送り先</label><select id="aTarget"></select></div>
+    <div class="f"><label>開始値</label><input id="aFrom" type="number" min="0" max="127"></div>
+    <div class="f"><label>終了値</label><input id="aTo" type="number" min="0" max="127"></div>
+    <div class="f"><label>長さ</label><div><input id="aLen" type="number" min="1" max="64">
+      <select id="aUnit"><option value="bar">小節</option><option value="beat">拍</option></select></div></div>
   </div>
+  <div class="grid">
+    <div class="f"><label>カーブ</label><select id="aShape">
+      <option value="lin">直線</option><option value="slow">ゆっくり立ち上がる</option>
+      <option value="fast">すばやく立ち上がる</option><option value="s">S字</option></select></div>
+    <div class="f"><label>開始</label><select id="aStart"><option value="bar">次の小節頭</option><option value="now">すぐ</option></select></div>
+    <div class="f"><label>形</label><svg id="preview" width="240" height="112" viewBox="0 0 120 56"><polyline id="prevLine" fill="none" stroke="#e8a33d" stroke-width="2"/></svg></div>
+  </div>
+  <div class="grid"><button id="goBtn">GO</button><button id="stopBtn">STOP</button></div>
+  <div id="prog"><div id="progFill"></div></div>
+  <div id="autoMsg"></div>
+</section>
 
-  <details class="panel">
-    <summary>詳細設定</summary>
-    <div class="settings">
-      <div class="f"><label>スムージング <span id="smoothV"></span></label><input id="smoothIn" type="range" min="0" max="100"></div>
-      <div class="f"><label>送信間隔の下限 (ms)</label><input id="minIntIn" type="number" min="0" max="200"></div>
-      <div class="f"><label>1小節の拍数</label><input id="bpbIn" type="number" min="1" max="12"></div>
-      <div class="f"><label>任意CCの番号</label><input id="ccIn" type="number" min="0" max="119"></div>
-    </div>
-  </details>
-</main>
+<section class="view scroll" id="v-setup">
+  <h3>MIDI</h3>
+  <div class="grid">
+    <div class="f"><label>MIDI OUT</label><select id="outSel"></select></div>
+    <div class="f"><label>CLOCK IN</label><select id="inSel"></select></div>
+    <div class="f"><label>機材</label><select id="profSel"></select></div>
+  </div>
+  <div class="grid">
+    <div class="f"><label>接続確認</label><button id="testBtn">テスト音（C4）</button></div>
+    <div class="f"><label>送信数</label><div id="rate" style="height:44px;line-height:44px;">0 msg/s</div></div>
+  </div>
+  <div id="mon">送信: -- ／ 受信: --</div>
+  <h3>操作</h3>
+  <div class="grid">
+    <div class="f"><label>スムージング <span id="smoothV"></span></label><input id="smoothIn" type="range" min="0" max="100"></div>
+    <div class="f"><label>送信間隔の下限 (ms)</label><input id="minIntIn" type="number" min="0" max="200"></div>
+    <div class="f"><label>1小節の拍数</label><input id="bpbIn" type="number" min="1" max="12"></div>
+    <div class="f"><label>任意CCの番号</label><input id="ccIn" type="number" min="0" max="119"></div>
+  </div>
+  <p class="note">スムージングを0にすると、指の動きを遅れなくそのまま送ります。上げるほど動きがなめらかになりますが、そのぶん追従が遅れます。送信間隔の下限を上げると、データ量が減ります（QY300のメモリ節約）。</p>
+</section>
 
 <script>
 (function(){
@@ -175,7 +189,7 @@ var PROFILES = {
 /* ---------- 設定 ---------- */
 var DEFAULTS = {
   outId:'', inId:'', ch:1, profile:'qy300', sync:'ext', bpm:120, bpb:4,
-  smooth:50, minInt:15, customCC:74,
+  smooth:15, minInt:5, customCC:74, tab:'fader', ver:2,
   faders:null, faderRet:[false,false,false,true],
   xyX:null, xyY:null, xyRet:true,
   aTarget:null, aFrom:40, aTo:127, aLen:4, aUnit:'bar', aShape:'slow', aStart:'bar'
@@ -187,6 +201,7 @@ function loadSettings(){
   var k;
   for (k in DEFAULTS) S[k] = DEFAULTS[k];
   if (saved) for (k in saved) if (k in DEFAULTS) S[k] = saved[k];
+  if (saved && !saved.ver){ if (S.smooth===50) S.smooth = 15; if (S.minInt===15) S.minInt = 5; S.ver = 2; }
   if (!PROFILES[S.profile]) S.profile = 'qy300';
   applyProfileDefaults(false);
 }
@@ -339,7 +354,7 @@ function axes(){ return faderAx.concat([xyX, xyY]); }
 function startVal(id){ var t=tdef(id); if(!t) return 0; return (id in val) ? val[id] : t.def; }
 function initAxis(ax, target, ret){
   ax.target = target; ax.ret = ret; ax.touching = false;
-  ax.cur = ax.des = startVal(target);
+  ax.cur = ax.des = startVal(target); ax.lastSet = ax.cur; ax.t = performance.now();
 }
 function syncAxes(id, v){
   axes().forEach(function(ax){ if (ax.target===id && !ax.touching){ ax.cur = ax.des = v; } });
@@ -362,7 +377,7 @@ function targetOptions(cur, allowNone){
 }
 var faderEls = [];
 function buildFaders(){
-  var box = $('faders'); box.innerHTML = ''; faderEls = []; faderAx = [];
+  var box = $('v-fader'); box.innerHTML = ''; faderEls = []; faderAx = [];
   for (var i=0;i<4;i++){
     var d = document.createElement('div'); d.className='fader';
     d.innerHTML = '<div class="val">-</div><div class="track"><div class="fill"></div><div class="center"></div></div>'+
@@ -375,7 +390,7 @@ function buildFaders(){
     (function(i, ax, els){
       els.sel.onchange = function(){ S.faders[i] = els.sel.value; initAxis(ax, S.faders[i], ax.ret); save(); };
       els.rel.onclick = function(){ ax.ret = !ax.ret; S.faderRet[i] = ax.ret; save(); };
-      bindDrag(els.track, function(x,y){ ax.des = clamp((1-y)*127,0,127); },
+      bindDrag(els.track, function(x,y){ ax.des = clamp((1-y)*127,0,127); stepAxis(ax, performance.now()); },
         function(){ ax.touching = true; els.track.className='track touching'; touchAxis(ax); },
         function(){ releaseAxis(ax); els.track.className='track'; });
     })(i, ax, els);
@@ -393,7 +408,7 @@ function initXYEvents(){
   $('xyYSel').onchange = function(){ S.xyY = this.value; initAxis(xyY, S.xyY, S.xyRet); save(); };
   $('xyRel').onclick = function(){ S.xyRet = !S.xyRet; xyX.ret = xyY.ret = S.xyRet; save(); };
   var pad = $('xy');
-  bindDrag(pad, function(x,y){ xyX.des = clamp(x*127,0,127); xyY.des = clamp((1-y)*127,0,127); },
+  bindDrag(pad, function(x,y){ var n=performance.now(); xyX.des = clamp(x*127,0,127); xyY.des = clamp((1-y)*127,0,127); stepAxis(xyX, n); stepAxis(xyY, n); },
     function(){ xyX.touching = xyY.touching = true; pad.className='touching'; touchAxis(xyX); touchAxis(xyY); },
     function(){ releaseAxis(xyX); releaseAxis(xyY); pad.className=''; });
 }
@@ -500,19 +515,43 @@ function drawPreview(){
 }
 
 /* ---------- ループ ---------- */
+function stepAxis(ax, now){
+  var dt = now - (ax.t || now); ax.t = now;
+  if (!ax.target || ax.target==='none') return;
+  if (auto && auto.begun && auto.target===ax.target && !ax.touching) return;
+  var tau = S.smooth * 1.5; // ms（0なら即時）
+  if (tau <= 0) ax.cur = ax.des;
+  else if (ax.cur !== ax.des){
+    var a = 1 - Math.exp(-Math.max(dt, 0.5) / tau);
+    ax.cur += (ax.des - ax.cur) * a;
+    if (Math.abs(ax.des - ax.cur) < 0.3) ax.cur = ax.des;
+  }
+  if (ax.cur !== ax.lastSet){ ax.lastSet = ax.cur; setTarget(ax.target, ax.cur); }
+}
 function loop(){
-  var k = 1 - (S.smooth/100)*0.92;
-  axes().forEach(function(ax){
-    if (!ax.target || ax.target==='none') return;
-    if (auto && auto.begun && auto.target===ax.target && !ax.touching) return;
-    var d = ax.des - ax.cur;
-    if (Math.abs(d) > 0.02){
-      ax.cur += d*k;
-      if (Math.abs(ax.des-ax.cur) < 0.3) ax.cur = ax.des;
-      setTarget(ax.target, ax.cur);
-    } else if (ax.cur !== ax.des){ ax.cur = ax.des; setTarget(ax.target, ax.cur); }
-  });
-  if (auto && auto.mode==='int') applyAuto((performance.now()-auto.t0)/auto.durMs);
+  var now = performance.now();
+  axes().forEach(function(ax){ stepAxis(ax, now); });
+  if (auto && auto.mode==='int') applyAuto((now-auto.t0)/auto.durMs);
+}
+
+/* ---------- タブとレイアウト ---------- */
+function showTab(v){
+  if (!$('v-'+v)) v = 'fader';
+  S.tab = v;
+  var tabs = document.querySelectorAll('#tabs button');
+  for (var i=0;i<tabs.length;i++) tabs[i].className = tabs[i].getAttribute('data-v')===v ? 'on' : '';
+  var views = document.querySelectorAll('.view');
+  for (var j=0;j<views.length;j++) views[j].className = views[j].className.replace(/\s*\bon\b/g,'') + (views[j].id==='v-'+v ? ' on' : '');
+  layout(); save();
+}
+function layout(){
+  var v = $('v-xy'); if (!v || v.className.indexOf(' on')<0) return;
+  var w = v.clientWidth - 20, h = v.clientHeight - 20, size;
+  if (w - 240 >= h) size = Math.min(h, w - 240);       // 横向き：右に設定
+  else size = Math.min(w, h - 300);                      // 縦向き：下に設定
+  size = Math.max(200, Math.floor(size));
+  $('xy').style.width = size+'px'; $('xy').style.height = size+'px';
+  $('xyCtl').style.margin = (w - 240 >= h) ? '0 0 0 14px' : '14px 0 0 0';
 }
 
 /* ---------- 表示 ---------- */
@@ -618,6 +657,10 @@ function initUI(){
   $('goBtn').onclick = function(){ autoMsg(''); startAuto(); };
   $('stopBtn').onclick = function(){ stopAuto(); };
   initXYEvents();
+  var tabs = document.querySelectorAll('#tabs button');
+  for (var i=0;i<tabs.length;i++) tabs[i].onclick = function(){ showTab(this.getAttribute('data-v')); };
+  window.addEventListener('resize', layout);
+  window.addEventListener('orientationchange', function(){ setTimeout(layout, 300); });
 }
 function rebuild(){
   buildFaders(); buildXY();
@@ -629,6 +672,7 @@ function rebuild(){
 loadSettings();
 initUI();
 rebuild();
+showTab(S.tab);
 initMIDI();
 setInterval(loop, 10);
 (function raf(){ render(); requestAnimationFrame(raf); })();
