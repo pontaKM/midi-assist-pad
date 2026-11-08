@@ -244,10 +244,21 @@ function portList(map){
   else { var it = map.values(); for (var o=it.next(); !o.done; o=it.next()) a.push(o.value); }
   return a;
 }
+function portKey(p, i){
+  var id = p ? p.id : null;
+  if (id === null || id === undefined || id === '') return 'idx:'+i+':'+(p && p.name ? p.name : '');
+  return String(id);
+}
+function findPort(list, key){
+  if (!key) return null;
+  for (var i=0;i<list.length;i++) if (portKey(list[i], i) === String(key)) return list[i];
+  return null;
+}
 function fillSelect(sel, items, cur, emptyLabel){
   var html = '<option value="">'+emptyLabel+'</option>';
   for (var i=0;i<items.length;i++){
-    html += '<option value="'+escapeAttr(items[i].id)+'"'+(items[i].id===cur?' selected':'')+'>'+escapeHtml(items[i].name||items[i].id)+'</option>';
+    var k = portKey(items[i], i);
+    html += '<option value="'+escapeAttr(k)+'"'+(k===String(cur)?' selected':'')+'>'+escapeHtml(items[i].name||k)+'</option>';
   }
   sel.innerHTML = html;
 }
@@ -256,17 +267,17 @@ function escapeAttr(s){ return escapeHtml(s); }
 function fillPorts(){
   var outs = midi ? portList(midi.outputs) : [];
   var ins  = midi ? portList(midi.inputs)  : [];
-  if (!S.outId && outs.length) S.outId = outs[0].id;
-  if (!S.inId && ins.length) S.inId = ins[0].id;
+  if (S.outId && !findPort(outs, S.outId)) S.outId = '';
+  if (S.inId && !findPort(ins, S.inId)) S.inId = '';
+  if (!S.outId && outs.length) S.outId = portKey(outs[0], 0);
+  if (!S.inId && ins.length) S.inId = portKey(ins[0], 0);
   fillSelect($('outSel'), outs, S.outId, '(なし)');
   fillSelect($('inSel'), ins, S.inId, '(なし)');
   bindPorts();
 }
 function bindPorts(){
-  out = null;
-  if (midi && S.outId){ portList(midi.outputs).forEach(function(p){ if (p.id===S.outId) out = p; }); }
-  var newIn = null;
-  if (midi && S.inId){ portList(midi.inputs).forEach(function(p){ if (p.id===S.inId) newIn = p; }); }
+  out = midi ? findPort(portList(midi.outputs), S.outId) : null;
+  var newIn = midi ? findPort(portList(midi.inputs), S.inId) : null;
   if (inp && inp !== newIn){
     if (inp.removeEventListener) inp.removeEventListener('midimessage', onMidiIn);
     inp.onmidimessage = null;
