@@ -267,15 +267,28 @@ function bindPorts(){
   if (midi && S.outId){ portList(midi.outputs).forEach(function(p){ if (p.id===S.outId) out = p; }); }
   var newIn = null;
   if (midi && S.inId){ portList(midi.inputs).forEach(function(p){ if (p.id===S.inId) newIn = p; }); }
-  if (inp && inp !== newIn) inp.onmidimessage = null;
+  if (inp && inp !== newIn){
+    if (inp.removeEventListener) inp.removeEventListener('midimessage', onMidiIn);
+    inp.onmidimessage = null;
+  }
+  var same = (inp === newIn);
   inp = newIn;
-  if (inp) inp.onmidimessage = onMidiIn;
+  if (inp && !same){
+    try { if (inp.open) { var pr = inp.open(); if (pr && pr.catch) pr.catch(function(){}); } } catch(e) {}
+    if (inp.addEventListener) inp.addEventListener('midimessage', onMidiIn);
+    else inp.onmidimessage = onMidiIn;
+  }
+  if (out){
+    try { if (out.open) { var po = out.open(); if (po && po.catch) po.catch(function(){}); } } catch(e) {}
+  }
 }
 var monOut = '--', monIn = '--';
 function hex(b){ var a=[]; for (var i=0;i<b.length;i++){ var h=b[i].toString(16).toUpperCase(); a.push(h.length<2?'0'+h:h); } return a.join(' '); }
 function sendRaw(bytes){
-  msgCount++; monOut = hex(bytes);
-  if (out) { try { out.send(bytes); } catch(e) {} }
+  msgCount++;
+  if (!out){ monOut = hex(bytes)+' (OUT未選択)'; return; }
+  try { out.send(bytes); monOut = hex(bytes); }
+  catch(e){ monOut = hex(bytes)+' (送信エラー: '+(e && e.message ? e.message : e)+')'; }
 }
 
 /* ---------- 値の管理と送信（間引き付き） ---------- */
