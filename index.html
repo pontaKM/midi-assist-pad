@@ -144,6 +144,12 @@ h3{font-size:14px;color:var(--dim);font-weight:600;margin:4px 0 10px;letter-spac
   <div id="mon">送信: -- ／ 受信: --</div>
   <h3>操作</h3>
   <div class="grid">
+    <div class="f"><label>フェーダーの動かし方</label><select id="fModeSel">
+      <option value="rel">触った位置から動かした分だけ変える</option><option value="abs">触った位置の値にする</option></select></div>
+    <div class="f"><label>感度（相対のとき）</label><select id="fSensSel">
+      <option value="0.5">細かく（全体の2倍の移動で最大）</option><option value="1">標準（端から端で最大）</option><option value="2">大きく（半分の移動で最大）</option></select></div>
+  </div>
+  <div class="grid">
     <div class="f"><label>スムージング <span id="smoothV"></span></label><input id="smoothIn" type="range" min="0" max="100"></div>
     <div class="f"><label>送信間隔の下限 (ms)</label><input id="minIntIn" type="number" min="0" max="200"></div>
     <div class="f"><label>1小節の拍数</label><input id="bpbIn" type="number" min="1" max="12"></div>
@@ -189,7 +195,7 @@ var PROFILES = {
 /* ---------- 設定 ---------- */
 var DEFAULTS = {
   outId:'', inId:'', ch:1, profile:'qy300', sync:'ext', bpm:120, bpb:4,
-  smooth:15, minInt:5, customCC:74, tab:'fader', ver:2,
+  smooth:15, minInt:5, customCC:74, tab:'fader', ver:2, faderMode:'rel', faderSens:1,
   faders:null, faderRet:[false,false,false,true],
   xyX:null, xyY:null, xyRet:true,
   aTarget:null, aFrom:40, aTo:127, aLen:4, aUnit:'bar', aShape:'slow', aStart:'bar'
@@ -390,8 +396,17 @@ function buildFaders(){
     (function(i, ax, els){
       els.sel.onchange = function(){ S.faders[i] = els.sel.value; initAxis(ax, S.faders[i], ax.ret); save(); };
       els.rel.onclick = function(){ ax.ret = !ax.ret; S.faderRet[i] = ax.ret; save(); };
-      bindDrag(els.track, function(x,y){ ax.des = clamp((1-y)*127,0,127); stepAxis(ax, performance.now()); },
-        function(){ ax.touching = true; els.track.className='track touching'; touchAxis(ax); },
+      var anchorY = 0, anchorV = 0;
+      bindDrag(els.track, function(x,y){
+          if (S.faderMode === 'abs') ax.des = clamp((1-y)*127,0,127);
+          else {
+            var v = anchorV + (anchorY - y) * 127 * S.faderSens;
+            if (v > 127 || v < 0){ v = clamp(v,0,127); anchorV = v; anchorY = y; } // 端で基準を取り直す
+            ax.des = v;
+          }
+          stepAxis(ax, performance.now());
+        },
+        function(x,y){ anchorY = y; anchorV = ax.des; ax.touching = true; els.track.className='track touching'; touchAxis(ax); },
         function(){ releaseAxis(ax); els.track.className='track'; });
     })(i, ax, els);
   }
@@ -420,10 +435,14 @@ function bindDrag(el, onMove, onStart, onEnd){
     var r = el.getBoundingClientRect();
     onMove(clamp((cx-r.left)/r.width,0,1), clamp((cy-r.top)/r.height,0,1));
   }
+  function start(cx, cy){
+    var r = el.getBoundingClientRect();
+    onStart(clamp((cx-r.left)/r.width,0,1), clamp((cy-r.top)/r.height,0,1));
+  }
   el.addEventListener('touchstart', function(e){
     e.preventDefault();
     if (tid !== null) return;
-    var t = e.changedTouches[0]; tid = t.identifier; onStart(); pos(t.clientX, t.clientY);
+    var t = e.changedTouches[0]; tid = t.identifier; start(t.clientX, t.clientY); pos(t.clientX, t.clientY);
   }, {passive:false});
   el.addEventListener('touchmove', function(e){
     e.preventDefault();
@@ -435,7 +454,7 @@ function bindDrag(el, onMove, onStart, onEnd){
   el.addEventListener('touchend', tend); el.addEventListener('touchcancel', tend);
   // mouse (PCでの確認用)
   var md = false;
-  el.addEventListener('mousedown', function(e){ md = true; onStart(); pos(e.clientX,e.clientY); e.preventDefault(); });
+  el.addEventListener('mousedown', function(e){ md = true; start(e.clientX,e.clientY); pos(e.clientX,e.clientY); e.preventDefault(); });
   window.addEventListener('mousemove', function(e){ if (md) pos(e.clientX,e.clientY); });
   window.addEventListener('mouseup', function(){ if (md){ md=false; onEnd(); } });
 }
@@ -621,6 +640,9 @@ function initUI(){
   h=''; for (var k in PROFILES) h+='<option value="'+k+'">'+escapeHtml(PROFILES[k].name)+'</option>'; $('profSel').innerHTML=h; $('profSel').value=S.profile;
   $('syncSel').value = S.sync; $('bpmIn').value = S.bpm;
   $('smoothIn').value = S.smooth; $('smoothV').textContent = S.smooth;
+  $('fModeSel').value = S.faderMode; $('fSensSel').value = String(S.faderSens);
+  $('fModeSel').onchange = function(){ S.faderMode = this.value; save(); };
+  $('fSensSel').onchange = function(){ S.faderSens = +this.value || 1; save(); };
   $('minIntIn').value = S.minInt; $('bpbIn').value = S.bpb; $('ccIn').value = S.customCC;
 
   $('outSel').onchange = function(){ S.outId = this.value; bindPorts(); save(); };
